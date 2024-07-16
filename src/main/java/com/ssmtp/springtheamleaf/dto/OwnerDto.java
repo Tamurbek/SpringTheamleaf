@@ -8,5 +8,4 @@ import java.util.List;
 public class OwnerDto {
     private String name;
     private String email;
-    private List<BlogDto> blogs;
 }

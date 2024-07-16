@@ -5,12 +5,17 @@ import com.ssmtp.springtheamleaf.dto.OwnerDto;
 import com.ssmtp.springtheamleaf.model.Owner;
 import com.ssmtp.springtheamleaf.repository.OwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,8 +27,10 @@ public class OwnerController {
     private OwnerRepository ownerRepository;
 
     @GetMapping("/home")
-    public String home(Model model) {
-        model.addAttribute("owners",ownerRepository.findAll());
+    public String home(Model model,@RequestParam(defaultValue = "0") int page) {
+        Page<Owner> owners = ownerRepository.findAll(PageRequest.of(page, 10));
+        model.addAttribute("owners",owners);
+        model.addAttribute("currentPage", page);
         return "index";
     }
 
@@ -38,7 +45,7 @@ public class OwnerController {
     public String saveOwner(@ModelAttribute("owner") Owner owner,Model model) {
         ownerRepository.save(owner);
         model.addAttribute("owners",ownerRepository.findAll());
-        return "index";
+        return "redirect:/api/v1/owner/home";
     }
 
     @GetMapping("/updateOwner/{id}")
@@ -59,7 +66,7 @@ public class OwnerController {
     public String deleteOwner(@PathVariable UUID id,Model model) {
         ownerRepository.deleteById(id);
         model.addAttribute("owners",ownerRepository.findAll());
-        return "index";
+        return "redirect:/api/v1/owner/home";
     }
 
 }
