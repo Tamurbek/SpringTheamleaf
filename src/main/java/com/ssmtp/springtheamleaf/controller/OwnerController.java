@@ -27,10 +27,23 @@ public class OwnerController {
     private OwnerRepository ownerRepository;
 
     @GetMapping("/home")
-    public String home(Model model,@RequestParam(defaultValue = "0") int page) {
-        Page<Owner> owners = ownerRepository.findAll(PageRequest.of(page, 10));
+    public String home(
+            Model model,
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int pageSize) {
+        Page<Owner> owners;
+        Pageable paging = PageRequest.of(page, pageSize);
+        if (name == null) {
+            owners = ownerRepository.findAll(paging);
+        }
+        else {
+            owners=ownerRepository.findByNameContaining(name, paging);
+            model.addAttribute("name",name);
+        }
         model.addAttribute("owners",owners);
         model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", pageSize);
         return "index";
     }
 
